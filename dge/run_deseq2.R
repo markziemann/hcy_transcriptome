@@ -2,6 +2,7 @@ library("tidyverse")
 library("reshape2")
 library("DESeq2")
 library("gplots")
+library("fgsea")
 
 # read counts
 tmp<-read.table("3col.tsv",header=F)
@@ -65,4 +66,38 @@ colfunc <- colorRampPalette(c("blue", "white", "red"))
 heatmap.2(  as.matrix(dge[1:50,c(7:ncol(dge))]), col=colfunc(25),scale="row",
  trace="none",margins = c(6,15), cexRow=.6, cexCol=.8,  main="Top 100 genes")
 dev.off()
+
+####################################################
+# FGSEA
+####################################################
+
+dge$SYMBOL<-sapply((strsplit(rownames(dge)," ")),"[[",2)
+
+res2 <- dge %>% 
+  dplyr::select(SYMBOL,stat) %>% 
+  na.omit() %>% 
+  distinct() %>% 
+  group_by(SYMBOL) %>% 
+  summarize(stat=mean(stat))
+res2
+
+stat<- deframe(res2)
+
+download.file("https://reactome.org/download/current/ReactomePathways.gmt.zip",destfile="ReactomePathways.gmt.zip")
+unzip("ReactomePathways.gmt.zip")
+
+gsets<-gmtPathways("ReactomePathways.gmt")
+
+fgseaRes <- fgsea(pathways=gsets, stats=stat, nperm=10000)
+
+fgseaRes<-fgseaRes[order(fgseaRes$pval),]
+
+
+# peek at upregulated pathways
+head(subset(fgseaRes,ES>0),10)
+
+# peek at downregulated pathways
+head(subset(fgseaRes,ES<0),10)
+
+
 
