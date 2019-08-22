@@ -1,4 +1,4 @@
-
+1
 library("tidyverse")
 library("reshape2")
 library("DESeq2")
@@ -105,20 +105,20 @@ head(subset(fgseaRes,ES<0),10)
 
 pdf("pathway_charts.pdf")
 
-psig<-subset(fgseaRes,pval<=0.05)
+psig<-subset(fgseaRes,padj<=0.05)
 plot(fgseaRes$ES,-log10(fgseaRes$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)")
-points(sig$ES,-log10(sig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
+points(psig$ES,-log10(psig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
 TOTAL=nrow(fgseaRes)
-SIG=nrow(sig)
-UP=length(which(sig$ES>0))
-DN=length(which(sig$ES<0))
+SIG=nrow(psig)
+UP=length(which(psig$ES>0))
+DN=length(which(psig$ES<0))
 HEADER=paste(TOTAL,"gene sets examined,",SIG,"FDR<0.05,",UP,"up-regulated,",DN,"down-regulated")
 mtext(HEADER)
 
 # barchart top effect size FDR<0.05
 par(mfrow = c(2, 1)) 
-sig_up<-subset(sig,ES>0)
-sig_dn<-subset(sig,ES<0)
+sig_up<-subset(psig,ES>0)
+sig_dn<-subset(psig,ES<0)
 sig_up<-head(sig_up[order(-sig_up$ES),],20)
 sig_dn<-head(sig_dn[order(-sig_dn$ES),],20)
 
