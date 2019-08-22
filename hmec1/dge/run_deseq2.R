@@ -18,7 +18,7 @@ rownames(xx)<-xx$geneid
 xx$geneid=NULL
 xx<-round(xx)
 
-pdf("MDSplot.pdf")
+pdf("hmec1_MDSplot.pdf")
 plot(cmdscale(dist(t(xx))), xlab="Coordinate 1", ylab="Coordinate 2", type = "n") 
 text(cmdscale(dist(t(xx))), labels=colnames(xx)) 
 dev.off()
@@ -40,14 +40,14 @@ z<- results(res)
 vsd <- vst(dds, blind=FALSE)
 zz<-cbind(as.data.frame(z),assay(vsd))
 dge<-as.data.frame(zz[order(zz$pvalue),])
-write.table(dge,file="hepg2_hcy_deseq.tsv",quote=F,sep="\t")
+write.table(dge,file="hmec1_hcy_deseq.tsv",quote=F,sep="\t")
 rnk<-as.data.frame( sign(dge$log2FoldChange) * (-log(dge$pvalue + 1E-307) ))
 rownames(rnk)<-row.names(dge)
 colnames(rnk)="Score"
-write.table(rnk,file="hepg2_hcy_deseq.rnk",sep='\t',quote=F)
+write.table(rnk,file="hmec1_hcy_deseq.rnk",sep='\t',quote=F)
 
 #some plots
-pdf("hepg2_hcy_plots.pdf")
+pdf("hmec1_hcy_plots.pdf")
 sig<-subset(dge,padj<0.05)
 SIG=nrow(sig)
 DN=nrow(subset(sig,log2FoldChange<0))
@@ -103,22 +103,22 @@ head(subset(fgseaRes,ES>0),10)
 # peek at downregulated pathways
 head(subset(fgseaRes,ES<0),10)
 
-pdf("pathway_charts.pdf")
+pdf("hmec1_pathway_charts.pdf")
 
-psig<-subset(fgseaRes,pval<=0.05)
+psig<-subset(fgseaRes,padj<=0.05)
 plot(fgseaRes$ES,-log10(fgseaRes$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)")
-points(sig$ES,-log10(sig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
+points(sig$ES,-log10(psig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
 TOTAL=nrow(fgseaRes)
-SIG=nrow(sig)
-UP=length(which(sig$ES>0))
-DN=length(which(sig$ES<0))
+SIG=nrow(psig)
+UP=length(which(psig$ES>0))
+DN=length(which(psig$ES<0))
 HEADER=paste(TOTAL,"gene sets examined,",SIG,"FDR<0.05,",UP,"up-regulated,",DN,"down-regulated")
 mtext(HEADER)
 
 # barchart top effect size FDR<0.05
 par(mfrow = c(2, 1)) 
-sig_up<-subset(sig,ES>0)
-sig_dn<-subset(sig,ES<0)
+sig_up<-subset(psig,ES>0)
+sig_dn<-subset(psig,ES<0)
 sig_up<-head(sig_up[order(-sig_up$ES),],20)
 sig_dn<-head(sig_dn[order(-sig_dn$ES),],20)
 
@@ -130,4 +130,4 @@ dev.off()
 
 # Pathway Table
 psig$leadingEdge <- vapply(psig$leadingEdge, paste, collapse = ", ", character(1L))
-write.table(psig, file = "Pathway_tables.csv", sep = ",")
+write.table(psig, file = "Hmec1_pathway_tables.csv", sep = ",")
