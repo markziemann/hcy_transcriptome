@@ -22,7 +22,6 @@ pdf("hmec1_MDSplot.pdf")
 plot(cmdscale(dist(t(xx))), xlab="Coordinate 1", ylab="Coordinate 2", type = "n") 
 text(cmdscale(dist(t(xx))), labels=colnames(xx)) 
 dev.off()
-
 # curate the samplesheet
 samplesheet<-as.data.frame(colnames(xx))
 samplesheet$hcy<-c(0,0,0,1,1,1)
@@ -53,21 +52,23 @@ SIG=nrow(sig)
 DN=nrow(subset(sig,log2FoldChange<0))
 UP=nrow(subset(sig,log2FoldChange>0))
 HEADER=paste("Ctrl vs 200 uM Hcy:", SIG , "DGEs,", UP ,"upregulated,", DN, "downregulated")
-plot(log2(dge$baseMean),dge$log2FoldChange,cex=0.6, xlab="log2 base mean", 
+
+plot(log2(dge$baseMean),dge$log2FoldChange,cex=0.5, xlab="log2 base mean", 
  ylim=c(-3,3),ylab="log2 fold change" ,pch=19,col="#838383")
-points(log2(sig$baseMean),sig$log2FoldChange,cex=0.6,pch=19,col="red")
+
+points(log2(sig$baseMean),sig$log2FoldChange,cex=0.5,pch=19,col="red")
 mtext(HEADER)
 top<-head(sig,20)
 #text(log2(top$baseMean)+1, top$log2FoldChange, labels = rownames(top),cex=0.7)
 #volcano plot
-plot(dge$log2FoldChange, -log2(dge$pvalue) ,cex=0.6, xlim=c(-3,3),xlab="log2 fold change", ylab="-log2 p-value" ,pch=19,col="#838383")
-points(sig$log2FoldChange, -log2(sig$pvalue),cex=0.6,pch=19,col="red")
+plot(dge$log2FoldChange, -log2(dge$pvalue) ,cex=0.5, xlim=c(-3,3),xlab="log2 fold change", ylab="-log2 p-value" ,pch=19,col="#838383")
+points(sig$log2FoldChange, -log2(sig$pvalue),cex=0.5,pch=19,col="red")
 #text(top$log2FoldChange+0.5, -log2(top$pvalue), labels = rownames(top),cex=0.7)
 mtext(HEADER)
 # top N gene heatmap
 colfunc <- colorRampPalette(c("blue", "white", "red"))
 heatmap.2(  as.matrix(dge[1:50,c(7:ncol(dge))]), col=colfunc(25),scale="row",
- trace="none",margins = c(6,15), cexRow=.6, cexCol=.8,  main="Top 100 genes")
+ trace="none",margins = c(6,20), cexRow=.6, cexCol=.6,  main="Top 50 genes")
 dev.off()
 
 ####################################################
@@ -107,7 +108,7 @@ pdf("hmec1_pathway_charts.pdf")
 
 psig<-subset(fgseaRes,padj<=0.05)
 plot(fgseaRes$ES,-log10(fgseaRes$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)")
-points(sig$ES,-log10(psig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
+points(psig$ES,-log10(psig$pval),pch=19,cex=0.8,xlab="ES",ylab="-log10(p-value)",col="red")
 TOTAL=nrow(fgseaRes)
 SIG=nrow(psig)
 UP=length(which(psig$ES>0))
@@ -124,7 +125,7 @@ sig_dn<-head(sig_dn[order(-sig_dn$ES),],20)
 
 par( mar=c(5,28,4,2)) ; barplot(rev(sig_up$ES),horiz=T,names.arg=rev(sig_up$pathway),las=2, cex.names=0.6 , cex.axis=0.6, xlab="ES",main="up-regulated sets",cex.main=0.6)
 par( mar=c(5,28,4,2)) ; barplot(rev(sig_dn$ES),horiz=T,names.arg=rev(sig_dn$pathway),las=2, cex.names=0.6, cex.axis=0.6, xlab="ES",main="down-regulated sets",cex.main=0.6)
-dev.off()
+dev.off()			`
 # barchart top significant
 
 
