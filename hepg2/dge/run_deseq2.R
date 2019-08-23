@@ -1,4 +1,3 @@
-
 library("tidyverse")
 library("reshape2")
 library("DESeq2")
@@ -18,9 +17,12 @@ rownames(xx)<-xx$geneid
 xx$geneid=NULL
 xx<-round(xx)
 
-pdf("MDSplot.pdf")
-plot(cmdscale(dist(t(xx))), xlab="Coordinate 1", ylab="Coordinate 2", type = "n") 
-text(cmdscale(dist(t(xx))), labels=colnames(xx)) 
+pdf("hepg2_MDSplot.pdf")
+
+plot(cmdscale(dist(t(xx))), xlab="Coordinate 1", ylab="Coordinate 2", type = "n",cex.axis=1.3,cex.lab=1.3) 
+
+text(cmdscale(dist(t(xx))), labels=colnames(xx),cex=1.3) 
+
 dev.off()
 
 # curate the samplesheet
@@ -54,22 +56,32 @@ DN=nrow(subset(sig,log2FoldChange<0))
 UP=nrow(subset(sig,log2FoldChange>0))
 HEADER=paste("Ctrl vs 200 uM Hcy:", SIG , "DGEs,", UP ,"upregulated,", DN, "downregulated")
 
-plot(log2(dge$baseMean),dge$log2FoldChange,cex=0.5, xlab="log2 base mean", 
+plot(log2(dge$baseMean),dge$log2FoldChange,cex=0.6,cex.axis=1.2,cex.lab=1.3, xlab="log2 base mean",
  ylim=c(-3,3),ylab="log2 fold change" ,pch=19,col="#838383")
 
-points(log2(sig$baseMean),sig$log2FoldChange,cex=0.5,pch=19,col="red")
-mtext(HEADER)
+points(log2(sig$baseMean),sig$log2FoldChange,cex=0.6,pch=19,col="red")
+
+mtext((HEADER),cex=1.2)
+
 top<-head(sig,20)
 #text(log2(top$baseMean)+1, top$log2FoldChange, labels = rownames(top),cex=0.7)
+
 #volcano plot
-plot(dge$log2FoldChange, -log2(dge$pvalue) ,cex=0.5, xlim=c(-3,3),xlab="log2 fold change", ylab="-log2 p-value" ,pch=19,col="#838383")
-points(sig$log2FoldChange, -log2(sig$pvalue),cex=0.5,pch=19,col="red")	
+
+plot(dge$log2FoldChange, -log2(dge$pvalue) ,cex=0.6, cex.lab=1.3,cex.axis=1.2,
+ xlim=c(-3,3),xlab="log2 fold change", ylab="-log2 p-value" ,pch=19,col="#838383")
+
+points(sig$log2FoldChange, -log2(sig$pvalue),cex=0.6,pch=19,col="red")	
+
 #text(top$log2FoldChange+0.5, -log2(top$pvalue), labels = rownames(top),cex=0.7)
-mtext(HEADER)
+
+mtext((HEADER),cex=1.2)
 # top N gene heatmap
 colfunc <- colorRampPalette(c("blue", "white", "red"))
+
 heatmap.2(  as.matrix(dge[1:50,c(7:ncol(dge))]), col=colfunc(25),scale="row",
- trace="none",margins = c(6,20), cexRow=.6, cexCol=.6,  main="Top 50 genes")
+ trace="none",margins = c(6,20), cexRow=.6, cexCol=.8,  main="Top 50 genes")
+
 dev.off()
 
 ####################################################
